@@ -24,6 +24,7 @@ stage('Build Docker Image') {
       }
     }
   }
+  
   stage {
     steps {
       script {
