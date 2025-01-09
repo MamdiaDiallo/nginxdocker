@@ -1,0 +1,138 @@
+exercice: Familiarisation avec DevOps et déploiement CI/CD Kubernetes
+  description: 
+    Cet exercice permet de vous familiariser avec les outils DevOps et cloud pour un déploiement automatisé CI/CD Kubernetes. 
+    Vous allez créer un cluster Kubernetes, construire et déployer une application, configurer un pipeline CI/CD, et configurer un système de monitoring.
+
+--------------------------------
+  technologies_requises:
+    - OS:
+        - Linux: Si vous utilisez Linux, suivez les instructions spécifiques à cet OS pour installer et configurer Kubernetes, Docker et autres outils.
+
+        - Windows: Si vous utilisez Windows, assurez-vous d'installer Docker Desktop et d'utiliser les outils compatibles Windows.
+    
+   - Cloud: 
+        - DigitalOcean
+
+    - Kubernetes: 
+        - Cluster Kubernetes sur DigitalOcean
+
+    - Outils:
+        - Helm: Utilisé pour gérer les déploiements Kubernetes.
+        - Docker: Outil pour créer, tester, et déployer des images de conteneurs.
+        - Docker Hub: Référentiel d'images Docker où vous allez pousser vos images.
+        - Nginx: Serveur web pour héberger l'application une fois déployée.
+
+    - Version Control: 
+        - GitHub ou GitLab:
+            description: Choisissez l'une des deux plateformes pour héberger votre code source et automatiser le processus de CI/CD via leurs outils respectifs (GitHub Actions ou GitLab CI/CD).
+
+
+    - Monitoring:
+        - ArgoCD: Outil de gestion des déploiements GitOps.
+        - Grafana: Outil de visualisation pour surveiller les métriques du système.
+        - Prometheus: Système de monitoring et de collecte de métriques.
+        - Promtail: Collecteur de logs qui fonctionne avec Prometheus et Grafana.
+
+---------------------------------
+Partie 1 : Build
+      description: Création et configuration de l'environnement et des outils de déploiement.
+      etapes 1: Installation de kubectl et de l'auto-completion
+          description: 
+            Installez kubectl (outil en ligne de commande Kubernetes) et configurez l'autocompletion pour faciliter l'utilisation des commandes Kubernetes.
+          
+         Action à faire:
+            - Téléchargez kubectl pour votre système d'exploitation (Linux ou Windows) à partir de la documentation officielle Kubernetes.
+            - Configurez l'autocompletion de kubectl en suivant les instructions adaptées à votre OS.
+            - Testez l'autocompletion en tapant une commande kubectl et en appuyant sur Tab pour vérifier que cela fonctionne correctement.
+
+
+        etapes 2: Création d'un cluster Kubernetes sur DigitalOcean
+          description: 
+            Créez un cluster Kubernetes sur DigitalOcean, configurez-le et testez la connexion.
+          
+       Action à faire:
+            - Créez un compte sur DigitalOcean avec une adresse email valide et une carte bancaire (vous bénéficiez d'un crédit gratuit de 200 $).
+            - voici le lien: https://cloud.digitalocean.com/registrations/new?refcode=f6fcd01aaffb
+            - Créez un cluster Kubernetes sur DigitalOcean : sélectionnez la région 'Frankfurt', utilisez 2 CPU, 80 Go de stockage, 1 noeud et laissez les autres paramètres par défaut.
+            - Téléchargez le fichier de configuration du cluster depuis DigitalOcean et placez-le dans le dossier ~/.kube/config sur votre machine locale.
+            - Testez la connexion au cluster en utilisant kubectl config current-context. Cela devrait retourner le nom de votre cluster.
+            - Familiarisez-vous avec les commandes de base kubectl en lisant la documentation officielle ou en cherchant des ressources en ligne.
+
+
+        etapes 3: Création d'une application Docker et préparation de l'image
+          description: 
+            Créez un Dockerfile, construisez une image Docker, testez-la localement, et poussez-la sur Docker Hub.
+          
+      Action à faire:
+            - Créez un répertoire "projet-kubernetes-code" et placez votre code source de l'application et le fichier de configuration nginx.conf.
+            - Rédigez un Dockerfile pour copier votre application et le fichier nginx.conf.
+            - Construisez l'image Docker à l'aide de la commande docker
+            - Testez l'image en la lançant dans un conteneur Docker local avec un port 8080
+            - Accédez à l'application via http://localhost:8080 et vérifiez qu'elle fonctionne correctement.
+            - Poussez l'image sur Docker Hub (création d'un repository privé application-apt), en vous connectant à Docker Hub via la commande docker 
+            - Utilisez docker push pour pousser l'image vers Docker Hub.
+
+        etapes 4: Déploiement du code sur un dépôt GitHub ou GitLab
+          description: 
+            Déposez le code de l'application dans un dépôt Git privé sur GitHub ou GitLab, et configurez-le pour une automatisation future.
+
+          Action à faire:
+            - Si vous utilisez GitHub, créez un dépôt privé nommé application-apt-git.
+            - Si vous utilisez GitLab, créez un dépôt privé avec le même nom sur GitLab.
+            - Poussez votre répertoire projet-kubernetes-code sur ce dépôt.
+            - Supprimez les images Docker locales et les conteneurs pour libérer des ressources locales, car elles ont déjà été poussées sur Docker Hub.
+
+        etapes 5: Création des objets Kubernetes pour déployer l'application
+          description: 
+            Créez les objets Kubernetes nécessaires pour déployer l'application sur le cluster Kubernetes.
+
+          Action à faire:
+            - Créez un répertoire projet-kubernetes-manifest au bureau pour y stocker les fichiers de configuration Kubernetes.
+            - Installez un Ingress Controller via le Marketplace de DigitalOcean en recherchant 'Ingress Controller'.
+            - Créez un fichier deployment.yaml pour un Deployment Kubernetes avec 4 réplicas, pointant vers l'image Docker sur Docker Hub.
+            - Créez un fichier service.yaml pour un Service Kubernetes de type ClusterIP.
+            - Créez un fichier ingress.yaml pour un Service Ingress pour exposer votre application.
+            - Déployez ces objets Kubernetes sur votre cluster en utilisant les commandes kubectl 
+
+        etapes 6: Accès à l'application via le Load Balancer
+          description: 
+            Vérifiez que l'application est accessible via le Load Balancer de DigitalOcean.
+
+          Action à faire:
+            - Accédez à l'adresse IP publique du Load Balancer de DigitalOcean.
+            - Testez si vous pouvez accéder à l'application via votre navigateur à l'adresse IP du Load Balancer.
+
+-----------------------------------------------
+    Partie 2 : CI/CD 
+      description: Automatisation du processus de build et de déploiement.
+      
+        etapes 1: Automatisation avec GitHub Actions ou GitLab CI/CD
+          description: 
+            Configurez un pipeline CI/CD pour automatiser le processus de build et de déploiement de l'application.
+
+          Action à faire:
+            - Si vous avez choisi GitHub : Créez un fichier .github/workflows/ci-cd.yml dans votre dépôt GitHub pour automatiser le build et le déploiement via GitHub Actions.
+            - Si vous avez choisi GitLab : Créez un fichier .gitlab-ci.yml dans votre dépôt GitLab pour automatiser le processus de build et de déploiement via GitLab CI/CD.
+            - Assurez-vous que le pipeline utilise l'image Docker pour construire et déployer automatiquement sur le cluster Kubernetes.
+
+---------------------------------------------------
+
+  Partie 3 : Monitoring
+      description: Configurer les outils de monitoring pour suivre la santé de l'application.
+      etapes 1: Installation et configuration d'ArgoCD, Grafana, Prometheus et Promtail
+          description: 
+            Installez et configurez les outils de monitoring pour suivre les performances du cluster et des applications.
+
+          Action à faire:
+            - Installez ArgoCD pour gérer les déploiements GitOps via kubectl.
+            - Installez Prometheus sur Kubernetes pour collecter des métriques.
+            - Installez Grafana pour visualiser les métriques collectées par Prometheus.
+            - Installez Promtail pour collecter les logs des pods Kubernetes et les envoyer vers Grafana pour une analyse des logs.
+            - Configurez Grafana pour se connecter à Prometheus et visualiser les métriques de votre application.
+
+--------------------------------------------------
+  informations_supplementaires:
+    - Si vous utilisez Windows, installez Docker Desktop et connectez-le à Docker Hub.
+    - Si vous utilisez Linux, assurez-vous que Docker est installé et opérationnel.
+    - Lors du choix de GitHub ou GitLab, veillez à utiliser la plateforme de votre choix pour gérer votre dépôt et automatiser CI/CD.
+    - Lors du déploiement d'une application sur Kubernetes, il est important de s'assurer que les objets comme les Deployments, Services et Ingress sont bien configurés pour éviter des erreurs de déploiement.
